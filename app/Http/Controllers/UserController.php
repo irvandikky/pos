@@ -19,9 +19,10 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $this->authorize('view-any', User::class);
-
-        $users = User::latest()
-            ->paginate(10);
+        $search = $request->get('terms', '');
+        $users = User::search($search)->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render(
             'Users/Index',

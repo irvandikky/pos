@@ -20,8 +20,10 @@ class ProductController extends Controller
     {
         $this->authorize('view-any', Product::class);
 
-        $products = Product::latest()
-        ->paginate(10);
+        $search = $request->get('terms', '');
+        $products = Product::search($search)->latest()
+        ->paginate(10)
+        ->withQueryString();
 
         return Inertia::render(
             'Products/Index',
@@ -95,13 +97,16 @@ class ProductController extends Controller
     public function edit(Request $request, Product $product)
     {
         $this->authorize('update', $product);
+
         $categories = Category::select('id', 'name')->get()->map(function($value) {
             return ['value' => $value->id, 'label' => $value->name];
         })->toArray();
+
         $product['image'] = $product->image ? \Storage::url($product->image) : null;
         $product['categories'] = $product->categories()->get()->map(function($value) {
             return ['value' => $value->id, 'label' => $value->name];
         })->toArray();
+
         return Inertia::render(
             'Products/Edit',
             [

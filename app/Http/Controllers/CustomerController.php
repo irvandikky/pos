@@ -18,8 +18,10 @@ class CustomerController extends Controller
     {
         $this->authorize('view-any', Customer::class);
 
-        $customers = Customer::latest()
-        ->paginate(10);
+        $search = $request->get('terms', '');
+        $customers = Customer::search($search)->latest()
+        ->paginate(10)
+        ->withQueryString();
 
         return Inertia::render(
             'Customers/Index',

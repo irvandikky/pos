@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -28,15 +31,24 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
+
+    // Users
     Route::resource('users', UserController::class);
-    Route::resource('customers', CustomerController::class);
+    Route::resource('roles', RoleController::class);
+    Route::resource('permissions', PermissionController::class);
+
+
+    // Products
     Route::resource('categories', CategoryController::class);
     Route::resource('products', ProductController::class);
+
+    // Sales
+    Route::resource('customers', CustomerController::class);
+    Route::resource('orders', OrderController::class);
 });
 
 require __DIR__ . '/auth.php';

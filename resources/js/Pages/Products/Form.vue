@@ -108,7 +108,7 @@ const previewImage = (e) => {
         </div>
         <div class="mb-4">
             <BreezeLabel for="categories" value="Select Categories" />
-            <Multiselect v-model="form.categories" mode="tags" :options="props.categories" :object="true" />
+            <Multiselect v-model="form.categories" :closeOnSelect="false" mode="tags" :options="props.categories" :object="true" />
         </div>
 
         <div class="mb-4">

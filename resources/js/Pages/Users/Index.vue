@@ -7,6 +7,7 @@ import { Inertia } from "@inertiajs/inertia";
 import { useForm } from "@inertiajs/inertia-vue3";
 import { defineComponent } from "vue";
 import Pagination from "@/Components/Pagination.vue";
+import Search from "@/Components/Search.vue";
 
 defineComponent({
     component: {
@@ -20,9 +21,17 @@ defineProps({
         default: () => ({}),
     },
 });
-const form = useForm();
 
-function destroy(id) {
+const form = useForm({})
+
+const data = {
+    model: "users",
+    terms: new URL(location.href).searchParams.get("terms")
+        ? new URL(location.href).searchParams.get("terms")
+        : "",
+};
+
+const destroy = (id) => {
     if (confirm("Are you sure you want to Delete")) {
         form.delete(route("users.destroy", id));
     }
@@ -38,9 +47,9 @@ function destroy(id) {
                 Users
             </h2>
             <Link
-                :href="route('users.create')"
+                :href="route('users.create')" v-if="$page.props.auth.access.indexOf('create users') != -1"
                 class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150"
-            >Add User
+                >Add User
             </Link>
         </template>
 
@@ -57,9 +66,11 @@ function destroy(id) {
                 </div>
                 <div class="overflow-hidden bg-white shadow-md sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
-                        <div
-                            class="relative overflow-x-auto"
-                        >
+                        <div class="relative overflow-x-auto">
+                            <Search
+                                v-bind:searchable="data.model"
+                                v-bind:terms="data.terms"
+                            />
                             <table
                                 class="w-full text-sm text-left text-gray-500"
                             >
@@ -73,13 +84,20 @@ function destroy(id) {
                                         <th scope="col" class="px-6 py-3">
                                             Email
                                         </th>
-                                        <th scope="col" class="px-6 py-3 text-center">
+                                        <th
+                                            scope="col"
+                                            class="px-6 py-3 text-center"
+                                        >
                                             Action
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="user in users.data" :key="user.id" class="bg-white border-b">
+                                    <tr
+                                        v-for="user in users.data"
+                                        :key="user.id"
+                                        class="bg-white border-b"
+                                    >
                                         <td class="px-6 py-4">
                                             {{ user.name }}
                                         </td>
@@ -87,22 +105,24 @@ function destroy(id) {
                                             {{ user.email }}
                                         </td>
 
-                                        <td class="px-6 py-4 flex space-x-4 justify-center">
-                                            <Link
+                                        <td
+                                            class="px-6 py-4 flex space-x-4 justify-center"
+                                        >
+                                            <Link v-if="$page.props.auth.access.indexOf('view users') != -1"
                                                 :href="
                                                     route('users.show', user.id)
                                                 "
                                                 class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150"
                                                 >View</Link
                                             >
-                                            <Link
+                                            <Link v-if="$page.props.auth.access.indexOf('update users') != -1"
                                                 :href="
                                                     route('users.edit', user.id)
                                                 "
                                                 class="px-4 py-2 text-white bg-gray-800 hover:bg-gray-700 rounded-lg uppercase"
                                                 >Edit</Link
                                             >
-                                            <BreezeButton
+                                            <BreezeButton v-if="$page.props.auth.access.indexOf('delete users') != -1"
                                                 class="bg-red-700 hover:bg-red-800"
                                                 @click="destroy(user.id)"
                                             >

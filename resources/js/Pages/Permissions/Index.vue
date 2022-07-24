@@ -16,7 +16,7 @@ defineComponent({
 });
 
 defineProps({
-    customers: {
+    permissions: {
         type: Object,
         default: () => ({}),
     },
@@ -25,7 +25,7 @@ defineProps({
 const form = useForm({})
 
 const data = {
-    model: "customers",
+    model: "permissions",
     terms: new URL(location.href).searchParams.get("terms")
         ? new URL(location.href).searchParams.get("terms")
         : "",
@@ -33,23 +33,23 @@ const data = {
 
 const destroy = (id) => {
     if (confirm("Are you sure you want to Delete")) {
-        form.delete(route("customers.destroy", id));
+        form.delete(route("permissions.destroy", id));
     }
-};
+}
 </script>
 
 <template>
-    <Head title="Customers" />
+    <Head title="Permissions" />
 
     <BreezeAuthenticatedLayout>
         <template #header class="flex">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Customers
+                Permissions
             </h2>
             <Link
-                :href="route('customers.create')" v-if="$page.props.auth.access.indexOf('create customers') != -1"
+                :href="route('permissions.create')" v-if="$page.props.auth.access.indexOf('create permissions') != -1"
                 class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150"
-                >Add Customer
+                >Add Permissions
             </Link>
         </template>
 
@@ -67,10 +67,6 @@ const destroy = (id) => {
                 <div class="overflow-hidden bg-white shadow-md sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
                         <div class="relative overflow-x-auto">
-                            <Search
-                                v-bind:searchable="data.model"
-                                v-bind:terms="data.terms"
-                            />
                             <table
                                 class="w-full text-sm text-left text-gray-500"
                             >
@@ -80,12 +76,6 @@ const destroy = (id) => {
                                     <tr>
                                         <th scope="col" class="px-6 py-3">
                                             Name
-                                        </th>
-                                        <th scope="col" class="px-6 py-3">
-                                            Phone
-                                        </th>
-                                        <th scope="col" class="px-6 py-3">
-                                            Email
                                         </th>
                                         <th
                                             scope="col"
@@ -97,49 +87,42 @@ const destroy = (id) => {
                                 </thead>
                                 <tbody>
                                     <tr
-                                        v-for="customer in customers.data"
-                                        :key="customer.id"
+                                        v-for="permission in permissions.data"
+                                        :key="permission.id"
                                         class="bg-white border-b"
                                     >
                                         <th
                                             scope="row"
                                             class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
                                         >
-                                            {{ customer.name }}
+                                            {{ permission.name }}
                                         </th>
-                                        <td class="px-6 py-4">
-                                            {{ customer.phone }}
-                                        </td>
-
-                                        <td class="px-6 py-4">
-                                            {{ customer.email }}
-                                        </td>
                                         <td
                                             class="px-6 py-4 flex space-x-4 justify-center"
                                         >
-                                            <Link v-if="$page.props.auth.access.indexOf('view customers') != -1"
+                                            <Link v-if="$page.props.auth.access.indexOf('view permissions') != -1"
                                                 :href="
                                                     route(
-                                                        'customers.show',
-                                                        customer.id
+                                                        'permissions.show',
+                                                        permission.id
                                                     )
                                                 "
                                                 class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150"
                                                 >View</Link
                                             >
-                                            <Link v-if="$page.props.auth.access.indexOf('update customers') != -1"
+                                            <Link v-if="$page.props.auth.access.indexOf('update permissions') != -1"
                                                 :href="
                                                     route(
-                                                        'customers.edit',
-                                                        customer.id
+                                                        'permissions.edit',
+                                                        permission.id
                                                     )
                                                 "
                                                 class="px-4 py-2 text-white bg-gray-800 hover:bg-gray-700 rounded-lg uppercase"
                                                 >Edit</Link
                                             >
-                                            <BreezeButton v-if="$page.props.auth.access.indexOf('delete customers') != -1"
+                                            <BreezeButton v-if="$page.props.auth.access.indexOf('delete permissions') != -1"
                                                 class="bg-red-700 hover:bg-red-800"
-                                                @click="destroy(customer.id)"
+                                                @click="destroy(permission.id)"
                                             >
                                                 Delete
                                             </BreezeButton>
@@ -150,7 +133,7 @@ const destroy = (id) => {
                         </div>
                         <pagination
                             class="mt-6 flex justify-end"
-                            :links="customers.links"
+                            :links="permissions.links"
                         />
                     </div>
                 </div>

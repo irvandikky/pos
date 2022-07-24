@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Inertia\Inertia;
+use Illuminate\Validation\Rule;
 
-class RoleController extends Controller {
+class RoleController extends Controller
+{
 
     /**
      * Display a listing of the resource.
@@ -18,7 +21,15 @@ class RoleController extends Controller {
         $this->authorize('list roles', Role::class);
 
         $roles = Role::latest()
-        ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render(
+            'Roles/Index',
+            [
+                'roles' => $roles,
+            ]
+        );
     }
 
     /**
@@ -30,9 +41,16 @@ class RoleController extends Controller {
     {
         $this->authorize('create roles', Role::class);
 
-        $permissions = Permission::all();
+        $permissions = Permission::select('id', 'name')->get()->map(function ($value) {
+            return ['value' => $value->id, 'label' => $value->name];
+        })->toArray();
 
-        return view('app.roles.create')->with('permissions', $permissions);
+        return Inertia::render(
+            'Roles/Create',
+            [
+                'permissions' => $permissions,
+            ]
+        );
     }
 
     /**
@@ -49,16 +67,19 @@ class RoleController extends Controller {
         $data = $this->validate($request, [
             'name' => 'required|unique:roles|max:32',
             'permissions' => 'array',
+            'permissions' => 'required|array',
+            'permissions.*.value' => ['required', Rule::in(Permission::select('id')->pluck('id')->toArray()) ]
         ]);
 
         $role = Role::create($data);
-
-        $permissions = Permission::find($request->permissions);
+        $permissions = array_map(function ($value) {
+            return $value['value'];
+        }, $request->permissions);
         $role->syncPermissions($permissions);
 
         return redirect()
-            ->route('roles.edit', $role->id)
-            ->withSuccess(__('crud.common.created'));
+            ->route('roles.show', $role->id)
+            ->withMessage(__('crud.common.created'));
     }
 
     /**
@@ -71,7 +92,13 @@ class RoleController extends Controller {
     {
         $this->authorize('view roles', Role::class);
 
-        return view('app.roles.show')->with('role', $role);
+        return Inertia::render(
+            'Roles/View',
+            [
+                'roles' => $role,
+                'permissions' => $role->permissions()->get(),
+            ]
+        );
     }
 
     /**
@@ -84,11 +111,20 @@ class RoleController extends Controller {
     {
         $this->authorize('update roles', $role);
 
-        $permissions = Permission::all();
+        $permissions = Permission::select('id', 'name')->get()->map(function ($value) {
+            return ['value' => $value->id, 'label' => $value->name];
+        })->toArray();
 
-        return view('app.roles.edit')
-            ->with('role', $role)
-            ->with('permissions', $permissions);
+        $role['permissions'] = $role->permissions()->get()->map(function ($value) {
+            return ['value' => $value->id, 'label' => $value->name];
+        })->toArray();
+        return Inertia::render(
+            'Roles/Edit',
+            [
+                'permissions' => $permissions,
+                'roles' => $role,
+            ]
+        );
     }
 
     /**
@@ -103,18 +139,22 @@ class RoleController extends Controller {
         $this->authorize('update roles', $role);
 
         $data = $this->validate($request, [
-            'name' => 'required|max:32|unique:roles,name,'.$role->id,
-            'permissions' => 'array',
+            'name' => 'required|max:32|unique:roles,name,' . $role->id,
+            'permissions' => 'required|array',
+            'permissions.*.value' => ['required', Rule::in(Permission::select('id')->pluck('id')->toArray()) ]
         ]);
 
         $role->update($data);
 
-        $permissions = Permission::find($request->permissions);
+        $permissions = array_map(function ($value) {
+            return $value['value'];
+        }, $request->permissions);
+
         $role->syncPermissions($permissions);
 
         return redirect()
             ->route('roles.edit', $role->id)
-            ->withSuccess(__('crud.common.saved'));
+            ->withMessage(__('crud.common.saved'));
     }
 
     /**
@@ -131,6 +171,6 @@ class RoleController extends Controller {
 
         return redirect()
             ->route('roles.index')
-            ->withSuccess(__('crud.common.removed'));
+            ->withMessage(__('crud.common.removed'));
     }
 }

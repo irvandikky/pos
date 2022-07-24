@@ -17,9 +17,11 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $this->authorize('view-any', Category::class);
+        $search = $request->get('terms', '');
 
-        $categories = Category::latest()
-        ->paginate(10);
+        $categories = Category::search($search)->latest()
+        ->paginate(10)
+        ->withQueryString();
 
         return Inertia::render(
             'Categories/Index',
