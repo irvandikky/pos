@@ -23,11 +23,18 @@ class ProductFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->name,
-            'description' => $this->faker->text,
+            'name' => $this->faker->text(100),
+            'description' => $this->faker->paragraph,
             'price' => $this->faker->randomFloat(2, 0, 9999),
             'stock' => $this->faker->randomNumber(2),
             'status' => $this->faker->boolean,
         ];
+    }
+
+    public function configure()
+    {
+        return $this->afterCreating(function (Product $product) {
+            $product->categories()->create(['name' => $this->faker->text(20)]);
+        });
     }
 }

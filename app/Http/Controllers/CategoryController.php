@@ -6,6 +6,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Requests\CategoryStoreRequest;
 use App\Http\Requests\CategoryUpdateRequest;
+use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
@@ -20,7 +21,12 @@ class CategoryController extends Controller
         $categories = Category::latest()
         ->paginate(10);
 
-        return view('app.categories.index', compact('categories', 'search'));
+        return Inertia::render(
+            'Categories/Index',
+            [
+                'categories' => $categories,
+            ]
+        );
     }
 
     /**
@@ -31,7 +37,7 @@ class CategoryController extends Controller
     {
         $this->authorize('create', Category::class);
 
-        return view('app.categories.create');
+        return Inertia::render('Categories/Create');
     }
 
     /**
@@ -47,8 +53,8 @@ class CategoryController extends Controller
         $category = Category::create($validated);
 
         return redirect()
-            ->route('categories.edit', $category)
-            ->withSuccess(__('crud.common.created'));
+            ->route('categories.show', $category)
+            ->withMessage(__('crud.common.created'));
     }
 
     /**
@@ -60,7 +66,12 @@ class CategoryController extends Controller
     {
         $this->authorize('view', $category);
 
-        return view('app.categories.show', compact('category'));
+        return Inertia::render(
+            'Categories/View',
+            [
+                'categories' => $category,
+            ]
+        );
     }
 
     /**
@@ -72,7 +83,12 @@ class CategoryController extends Controller
     {
         $this->authorize('update', $category);
 
-        return view('app.categories.edit', compact('category'));
+        return Inertia::render(
+            'Categories/Edit',
+            [
+                'categories' => $category,
+            ]
+        );
     }
 
     /**
@@ -90,7 +106,7 @@ class CategoryController extends Controller
 
         return redirect()
             ->route('categories.edit', $category)
-            ->withSuccess(__('crud.common.saved'));
+            ->withMessage(__('crud.common.saved'));
     }
 
     /**
@@ -106,6 +122,6 @@ class CategoryController extends Controller
 
         return redirect()
             ->route('categories.index')
-            ->withSuccess(__('crud.common.removed'));
+            ->withMessage(__('crud.common.removed'));
     }
 }

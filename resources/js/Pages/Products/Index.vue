@@ -15,7 +15,7 @@ defineComponent({
 });
 
 defineProps({
-    customers: {
+    products: {
         type: Object,
         default: () => ({}),
     },
@@ -24,23 +24,23 @@ const form = useForm();
 
 function destroy(id) {
     if (confirm("Are you sure you want to Delete")) {
-        form.delete(route("customers.destroy", id));
+        form.delete(route("products.destroy", id));
     }
 }
 </script>
 
 <template>
-    <Head title="Customers" />
+    <Head title="Products" />
 
     <BreezeAuthenticatedLayout>
         <template #header class="flex">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Customers
+                Products
             </h2>
             <Link
-                :href="route('customers.create')"
+                :href="route('products.create')"
                 class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150"
-            >Add Customer
+                >Add Products
             </Link>
         </template>
 
@@ -57,9 +57,7 @@ function destroy(id) {
                 </div>
                 <div class="overflow-hidden bg-white shadow-md sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
-                        <div
-                            class="relative overflow-x-auto"
-                        >
+                        <div class="relative overflow-x-auto">
                             <table
                                 class="w-full text-sm text-left text-gray-500"
                             >
@@ -71,49 +69,77 @@ function destroy(id) {
                                             Name
                                         </th>
                                         <th scope="col" class="px-6 py-3">
-                                            Phone
+                                            Price
                                         </th>
                                         <th scope="col" class="px-6 py-3">
-                                            Email
+                                            Stock
                                         </th>
-                                        <th scope="col" class="px-6 py-3 text-center">
+                                        <th scope="col" class="px-6 py-3">
+                                            Status
+                                        </th>
+                                        <th
+                                            scope="col"
+                                            class="px-6 py-3 text-center"
+                                        >
                                             Action
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="customer in customers.data" :key="customer.id" class="bg-white border-b">
+                                    <tr
+                                        v-for="product in products.data"
+                                        :key="product.id"
+                                        class="bg-white border-b"
+                                    >
                                         <th
                                             scope="row"
-                                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                                            class="px-6 py-4 font-medium text-gray-900"
                                         >
-                                            {{ customer.name }}
+                                            {{ product.name }}
                                         </th>
                                         <td class="px-6 py-4">
-                                            {{ customer.phone }}
+                                            {{
+                                                new Intl.NumberFormat("en-US", {
+                                                    style: "currency",
+                                                    currency: "IDR",
+                                                })
+                                                    .format(product.price)
+                                                    .replace(/(\.|,)00$/g, "")
+                                            }}
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            {{ product.stock }}
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            {{ product.status ? 'Published' : 'Draft' }}
                                         </td>
 
-                                        <td class="px-6 py-4">
-                                            {{ customer.email }}
-                                        </td>
-                                        <td class="px-6 py-4 flex space-x-4 justify-center">
+                                        <td
+                                            class="px-6 py-4 flex space-x-4 justify-center"
+                                        >
                                             <Link
                                                 :href="
-                                                    route('customers.show', customer.id)
+                                                    route(
+                                                        'products.show',
+                                                        product.id
+                                                    )
                                                 "
                                                 class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150"
                                                 >View</Link
                                             >
                                             <Link
                                                 :href="
-                                                    route('customers.edit', customer.id)
+                                                    route(
+                                                        'products.edit',
+                                                        product.id
+                                                    )
                                                 "
                                                 class="px-4 py-2 text-white bg-gray-800 hover:bg-gray-700 rounded-lg uppercase"
                                                 >Edit</Link
                                             >
                                             <BreezeButton
                                                 class="bg-red-700 hover:bg-red-800"
-                                                @click="destroy(customer.id)"
+                                                @click="destroy(product.id)"
                                             >
                                                 Delete
                                             </BreezeButton>
@@ -124,7 +150,7 @@ function destroy(id) {
                         </div>
                         <pagination
                             class="mt-6 flex justify-end"
-                            :links="customers.links"
+                            :links="products.links"
                         />
                     </div>
                 </div>

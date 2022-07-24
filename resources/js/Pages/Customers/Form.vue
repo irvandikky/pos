@@ -2,44 +2,38 @@
 import BreezeButton from "@/Components/Button.vue";
 import BreezeLabel from "@/Components/Label.vue";
 import BreezeInput from "@/Components/Input.vue";
+import BreezeTextarea from "@/Components/TextArea.vue";
 import { useForm } from "@inertiajs/inertia-vue3";
 import { Link } from "@inertiajs/inertia-vue3";
 
 const props = defineProps({
-    editing: false,
-    data: {
-        type: Object,
-        default: () => ({}),
+    editing: {
+        type: Boolean,
+        default: false,
     },
-    roles: {
+    data: {
         type: Object,
         default: () => ({}),
     },
 });
 const form = useForm({
-    name: props.data.name,
-    email: props.data.email,
-    password: "",
-    roles: props.data.roles,
+    name: props.editing ? props.data.name : '',
+    email: props.editing ? props.data.email : '',
+    phone: props.editing ? props.data.phone : '',
+    address: props.editing ? props.data.address.street : '',
+    city: props.editing ? props.data.address.city : '',
+    zip: props.editing ? props.data.address.zip : '',
 });
-const submit = () => {
-    form.put(route("users.update", props.data.id));
+const update = () => {
+    form.put(route("customers.update", props.data.id));
 };
-if (!props.editing) {
-    const form = useForm({
-        name: "",
-        email: "",
-        password: "",
-        roles: "",
-    });
 
-    const submit = () => {
-        form.post(route("users.store"));
-    };
-}
+const create = () => {
+    form.post(route("customers.store"));
+};
 </script>
 <template>
-    <form @submit.prevent="submit">
+    <form @submit.prevent="!props.editing ? create() : update()">
         <div class="mb-4">
             <BreezeLabel for="name" value="Name" />
             <BreezeInput
@@ -52,6 +46,7 @@ if (!props.editing) {
                 autocomplete="name"
             />
         </div>
+
         <div class="mb-4">
             <BreezeLabel for="email" value="Email" />
             <BreezeInput
@@ -63,46 +58,66 @@ if (!props.editing) {
                 autocomplete="email"
             />
         </div>
+
         <div class="mb-4">
-            <BreezeLabel for="password" value="Password" />
+            <BreezeLabel for="phone" value="Phone" />
             <BreezeInput
-                id="password"
-                type="password"
+                id="phone"
+                type="text"
                 class="mt-1 block w-full"
-                v-model="form.password"
+                v-model="form.phone"
                 required
+                autocomplete="phone"
             />
         </div>
 
         <div class="mb-4">
-            <BreezeLabel for="roles" value="Role" />
-            <select
-                id="roles"
-                class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm mt-1 block w-full"
-                v-model="form.roles"
+            <BreezeLabel for="address" value="Address" />
+            <BreezeTextarea
+                id="address"
+                class="mt-1 block w-full"
+                v-model="form.address"
                 required
-            >
-                <option>Select Role</option>
-                <option :value="index" v-for="(item, index) in props.roles">
-                    {{ item.toUpperCase() }}
-                </option>
-            </select>
+                autocomplete="address"
+            />
+        </div>
+
+        <div class="mb-4">
+            <BreezeLabel for="city" value="City" />
+            <BreezeInput
+                id="city"
+                type="text"
+                class="mt-1 block w-full"
+                v-model="form.city"
+                required
+                autocomplete="city"
+            />
+        </div>
+
+        <div class="mb-4">
+            <BreezeLabel for="zip" value="Postal Code" />
+            <BreezeInput
+                id="zip"
+                type="text"
+                class="mt-1 block w-full"
+                v-model="form.zip"
+                required
+                autocomplete="zip"
+            />
         </div>
 
         <div class="flex items-center justify-end mt-4">
-
             <Link
-                :href="route('users.index')"
+                :href="route('customers.index')"
                 class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150"
-            >Back
+                >Back
             </Link>
             <BreezeButton
                 class="ml-4"
                 :class="{ 'opacity-25': form.processing }"
                 :disabled="form.processing"
             >
-                <span v-if="!props.editing">Create</span>
-                <span v-else>Update</span>
+                <span v-text="!props.editing ? 'Create' : 'Update'"></span>
             </BreezeButton>
         </div>
     </form>

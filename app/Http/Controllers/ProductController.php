@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ProductStoreRequest;
 use App\Http\Requests\ProductUpdateRequest;
+use App\Models\Category;
+use Inertia\Inertia;
 
 class ProductController extends Controller
 {
@@ -21,7 +23,12 @@ class ProductController extends Controller
         $products = Product::latest()
         ->paginate(10);
 
-        return view('app.products.index', compact('products', 'search'));
+        return Inertia::render(
+            'Products/Index',
+            [
+                'products' => $products,
+            ]
+        );
     }
 
     /**
@@ -32,7 +39,12 @@ class ProductController extends Controller
     {
         $this->authorize('create', Product::class);
 
-        return view('app.products.create');
+        $categories = Category::select('id', 'name')->get()->map(function($value) {
+            return ['value' => $value->id, 'label' => $value->name];
+        })->toArray();
+        return Inertia::render('Products/Create', [
+            'categories' => $categories,
+        ]);
     }
 
     /**
@@ -47,12 +59,14 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('public');
         }
-
+        $categories = array_map(function($value) {return $value['value'];}, $validated['categories']);
+        $validated['status'] = intval($validated['status']) ;
         $product = Product::create($validated);
+        $product->categories()->sync($categories);
 
         return redirect()
             ->route('products.edit', $product)
-            ->withSuccess(__('crud.common.created'));
+            ->withMessage(__('crud.common.created'));
     }
 
     /**
@@ -63,8 +77,14 @@ class ProductController extends Controller
     public function show(Request $request, Product $product)
     {
         $this->authorize('view', $product);
+        $product['image'] = $product->image ? \Storage::url($product->image) : null;
 
-        return view('app.products.show', compact('product'));
+        return Inertia::render(
+            'Products/View',
+            [
+                'products' => $product,
+            ]
+        );
     }
 
     /**
@@ -75,8 +95,20 @@ class ProductController extends Controller
     public function edit(Request $request, Product $product)
     {
         $this->authorize('update', $product);
-
-        return view('app.products.edit', compact('product'));
+        $categories = Category::select('id', 'name')->get()->map(function($value) {
+            return ['value' => $value->id, 'label' => $value->name];
+        })->toArray();
+        $product['image'] = $product->image ? \Storage::url($product->image) : null;
+        $product['categories'] = $product->categories()->get()->map(function($value) {
+            return ['value' => $value->id, 'label' => $value->name];
+        })->toArray();
+        return Inertia::render(
+            'Products/Edit',
+            [
+                'products' => $product,
+                'categories' => $categories,
+            ]
+        );
     }
 
     /**
@@ -87,8 +119,8 @@ class ProductController extends Controller
     public function update(ProductUpdateRequest $request, Product $product)
     {
         $this->authorize('update', $product);
-
         $validated = $request->validated();
+        $categories = array_map(function($value) {return $value['value'];}, $validated['categories']);
         if ($request->hasFile('image')) {
             if ($product->image) {
                 Storage::delete($product->image);
@@ -96,12 +128,12 @@ class ProductController extends Controller
 
             $validated['image'] = $request->file('image')->store('public');
         }
-
         $product->update($validated);
+        $product->categories()->sync($categories);
 
         return redirect()
             ->route('products.edit', $product)
-            ->withSuccess(__('crud.common.saved'));
+            ->withMessage(__('crud.common.saved'));
     }
 
     /**
@@ -121,6 +153,6 @@ class ProductController extends Controller
 
         return redirect()
             ->route('products.index')
-            ->withSuccess(__('crud.common.removed'));
+            ->withMessage(__('crud.common.removed'));
     }
 }

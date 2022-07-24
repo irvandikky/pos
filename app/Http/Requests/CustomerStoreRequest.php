@@ -38,7 +38,9 @@ class CustomerStoreRequest extends FormRequest
                 'max:255',
                 'string',
             ],
-            'address' => ['required', 'max:255', 'json'],
+            'address' => ['required', 'max:255', 'string'],
+            'city' => ['required', 'max:100', 'string'],
+            'zip' => ['required', 'max:10', 'string'],
         ];
     }
 }

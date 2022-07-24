@@ -36,8 +36,7 @@ class CustomerController extends Controller
     public function create(Request $request)
     {
         $this->authorize('create', Customer::class);
-
-        return view('app.customers.create');
+        return Inertia::render('Customers/Create');
     }
 
     /**
@@ -49,13 +48,12 @@ class CustomerController extends Controller
         $this->authorize('create', Customer::class);
 
         $validated = $request->validated();
-        $validated['address'] = json_decode($validated['address'], true);
+        $validated['address'] = ['street' => $validated['address'], 'city' => $validated['city'], 'zip' => $validated['zip']];
 
         $customer = Customer::create($validated);
-
         return redirect()
-            ->route('customers.edit', $customer)
-            ->withSuccess(__('crud.common.created'));
+            ->route('customers.show', $customer)
+            ->withMessage(__('crud.common.created'));
     }
 
     /**
@@ -67,7 +65,12 @@ class CustomerController extends Controller
     {
         $this->authorize('view', $customer);
 
-        return view('app.customers.show', compact('customer'));
+        return Inertia::render(
+            'Customers/View',
+            [
+                'customers' => $customer,
+            ]
+        );
     }
 
     /**
@@ -79,7 +82,12 @@ class CustomerController extends Controller
     {
         $this->authorize('update', $customer);
 
-        return view('app.customers.edit', compact('customer'));
+        return Inertia::render(
+            'Customers/Edit',
+            [
+                'customers' => $customer,
+            ]
+        );
     }
 
     /**
@@ -92,13 +100,13 @@ class CustomerController extends Controller
         $this->authorize('update', $customer);
 
         $validated = $request->validated();
-        $validated['address'] = json_decode($validated['address'], true);
+        $validated['address'] = ['street' => $validated['address'], 'city' => $validated['city'], 'zip' => $validated['zip']];
 
         $customer->update($validated);
 
         return redirect()
             ->route('customers.edit', $customer)
-            ->withSuccess(__('crud.common.saved'));
+            ->withMessage(__('crud.common.saved'));
     }
 
     /**
@@ -114,6 +122,6 @@ class CustomerController extends Controller
 
         return redirect()
             ->route('customers.index')
-            ->withSuccess(__('crud.common.removed'));
+            ->withMessage(__('crud.common.removed'));
     }
 }

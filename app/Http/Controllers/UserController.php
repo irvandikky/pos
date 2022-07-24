@@ -66,7 +66,7 @@ class UserController extends Controller
         $user->syncRoles($request->roles);
 
         return redirect()
-            ->route('users.view', $user)
+            ->route('users.show', $user)
             ->withMessage(__('crud.common.created'));
     }
 

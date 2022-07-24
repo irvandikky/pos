@@ -36,6 +36,12 @@ const showingNavigationDropdown = ref(false);
                                 <BreezeNavLink :href="route('customers.index')" :active="route().current('customers.*')" v-if="$page.props.auth.access.indexOf('list customers') != -1">
                                     Customers
                                 </BreezeNavLink>
+                                <BreezeNavLink :href="route('categories.index')" :active="route().current('categories.*')" v-if="$page.props.auth.access.indexOf('list categories') != -1">
+                                    Categories
+                                </BreezeNavLink>
+                                <BreezeNavLink :href="route('products.index')" :active="route().current('products.*')" v-if="$page.props.auth.access.indexOf('list products') != -1">
+                                    Products
+                                </BreezeNavLink>
                             </div>
                         </div>
 
@@ -86,6 +92,12 @@ const showingNavigationDropdown = ref(false);
                         </BreezeResponsiveNavLink>
                         <BreezeResponsiveNavLink :href="route('customers.index')" :active="route().current('customers.*')" v-if="$page.props.auth.access.indexOf('list customers') != -1">
                             Customers
+                        </BreezeResponsiveNavLink>
+                        <BreezeResponsiveNavLink :href="route('categories.index')" :active="route().current('categories.*')" v-if="$page.props.auth.access.indexOf('list categories') != -1">
+                            Categories
+                        </BreezeResponsiveNavLink>
+                        <BreezeResponsiveNavLink :href="route('products.index')" :active="route().current('products.*')" v-if="$page.props.auth.access.indexOf('list products') != -1">
+                            Products
                         </BreezeResponsiveNavLink>
                     </div>
 

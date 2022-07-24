@@ -68,9 +68,6 @@ function destroy(id) {
                                 >
                                     <tr>
                                         <th scope="col" class="px-6 py-3">
-                                            #
-                                        </th>
-                                        <th scope="col" class="px-6 py-3">
                                             Name
                                         </th>
                                         <th scope="col" class="px-6 py-3">
@@ -82,13 +79,7 @@ function destroy(id) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(user, index) in users.data" class="bg-white border-b">
-                                        <th
-                                            scope="row"
-                                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
-                                        >
-                                            {{ index+1 }}
-                                        </th>
+                                    <tr v-for="user in users.data" :key="user.id" class="bg-white border-b">
                                         <td class="px-6 py-4">
                                             {{ user.name }}
                                         </td>
