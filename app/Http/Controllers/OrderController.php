@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Product;
 use App\Models\Order;
-use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Http\Requests\OrderStoreRequest;
 use App\Http\Requests\OrderUpdateRequest;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -19,10 +20,16 @@ class OrderController extends Controller
     {
         $this->authorize('view-any', Order::class);
 
-        $orders = Order::latest()
-        ->paginate(10);
-
-        return view('app.orders.index', compact('orders', 'search'));
+        $search = $request->get('terms', '');
+        $orders = Order::search($search)->with('customer', 'orderDetails')->latest()
+            ->paginate(10)
+            ->withQueryString();
+        return Inertia::render(
+            'Orders/Index',
+            [
+                'orders' => $orders,
+            ]
+        );
     }
 
     /**
@@ -33,10 +40,7 @@ class OrderController extends Controller
     {
         $this->authorize('create', Order::class);
 
-        $customers = Customer::pluck('name', 'id');
-        $users = User::pluck('name', 'id');
-
-        return view('app.orders.create', compact('customers', 'users'));
+        return Inertia::render('Orders/Create');
     }
 
     /**
@@ -48,12 +52,34 @@ class OrderController extends Controller
         $this->authorize('create', Order::class);
 
         $validated = $request->validated();
+        $validated['user_id'] = $request->user()->id;
+        try {
+            DB::beginTransaction();
+            $productArray = [];
 
-        $order = Order::create($validated);
+            for ($i = 0; $i < count($validated['products']); $i++) {
+                $product = Product::select('id', 'price', 'stock')->findOrFail($validated['products'][$i]['id']);
+                if ($product->stock > 0) {
+                    $productArray[] = ['product_id' => $product->id, 'qty' => $validated['products'][$i]['qty'], 'total' => $validated['products'][$i]['qty'] * $product->price];
+                    $product->update([
+                        'stock' => $product->stock - $validated['products'][$i]['qty']
+                    ]);
+                }
+            }
 
+            $order = Order::create($validated);
+            $order->orderDetails()->createMany($productArray);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()
+                ->back()->withInput($request->all())
+                ->withMessage(__('Failed to create Order'));
+        }
         return redirect()
-            ->route('orders.edit', $order)
-            ->withSuccess(__('crud.common.created'));
+            ->route('orders.show', $order)
+            ->withMessage(__('crud.common.created'));
     }
 
     /**
@@ -64,8 +90,9 @@ class OrderController extends Controller
     public function show(Request $request, Order $order)
     {
         $this->authorize('view', $order);
-
-        return view('app.orders.show', compact('order'));
+        $order->customer;
+        $order->user;
+        return Inertia::render('Orders/View', ['orders' => $order, 'details' => $order->orderDetails()->with('product')->get()]);
     }
 
     /**
@@ -76,11 +103,11 @@ class OrderController extends Controller
     public function edit(Request $request, Order $order)
     {
         $this->authorize('update', $order);
+        $detail = $order->orderDetails()->with('product')->get()->map(function ($value) {
+            return ['id' => $value->product->id, 'name' => $value->product->name, 'qty' => $value->qty, 'subprice' => $value->total, 'price' => $value->product->price, 'disabled' => true];
+        })->toArray();
 
-        $customers = Customer::pluck('name', 'id');
-        $users = User::pluck('name', 'id');
-
-        return view('app.orders.edit', compact('order', 'customers', 'users'));
+        return Inertia::render('Orders/Edit', ['orders' => $order, 'details' => $detail]);
     }
 
     /**
@@ -93,12 +120,35 @@ class OrderController extends Controller
         $this->authorize('update', $order);
 
         $validated = $request->validated();
+        $validated['user_id'] = $request->user()->id;
+        try {
+            DB::beginTransaction();
+            $productArray = [];
 
-        $order->update($validated);
+            $order->orderDetails()->delete();
+            for ($i = 0; $i < count($validated['products']); $i++) {
+                $product = Product::select('id', 'price', 'stock')->findOrFail($validated['products'][$i]['id']);
+                if ($product->stock > 0) {
+                    $productArray[] = ['product_id' => $product->id, 'qty' => $validated['products'][$i]['qty'], 'total' => $validated['products'][$i]['qty'] * $product->price];
+                    $product->update([
+                        'stock' => $product->stock - $validated['products'][$i]['qty']
+                    ]);
+                }
+            }
+            $order->update($validated);
+            $order->orderDetails()->createMany($productArray);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()
+                ->back()->withInput($request->all())
+                ->withMessage(__('Failed to update Order'));
+        }
 
         return redirect()
             ->route('orders.edit', $order)
-            ->withSuccess(__('crud.common.saved'));
+            ->withMessage(__('crud.common.saved'));
     }
 
     /**
@@ -111,9 +161,10 @@ class OrderController extends Controller
         $this->authorize('delete', $order);
 
         $order->delete();
+        $order->orderDetails()->delete();
 
         return redirect()
             ->route('orders.index')
-            ->withSuccess(__('crud.common.removed'));
+            ->withMessage(__('crud.common.removed'));
     }
 }

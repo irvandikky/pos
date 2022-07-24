@@ -33,7 +33,7 @@ class UserUpdateRequest extends FormRequest
                 'email',
             ],
             'password' => ['nullable', 'min:8'],
-            'roles' => ['required',  Rule::in(Role::select('id')->pluck('id')->toArray()) ],
+            'roles' => ['required', 'exists:roles,id' ],
         ];
     }
 }

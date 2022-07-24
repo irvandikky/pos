@@ -29,7 +29,7 @@ class UserStoreRequest extends FormRequest
             'name' => ['required', 'max:255', 'string'],
             'email' => ['required', 'unique:users,email', 'email'],
             'password' => ['required', 'min:8'],
-            'roles' => ['required',  Rule::in(Role::select('id')->pluck('id')->toArray()) ],
+            'roles' => ['required', 'exists:roles,id' ],
         ];
     }
 }

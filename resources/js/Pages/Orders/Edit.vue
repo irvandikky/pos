@@ -1,16 +1,16 @@
 <script setup>
 import BreezeAuthenticatedLayout from "@/Layouts/Authenticated.vue";
 import BreezeValidationErrors from "@/Components/ValidationErrors.vue";
-import FormCustomer from "@/Pages/Customers/Form.vue";
+import FormOrders from "@/Pages/Orders/Form.vue";
 import { Head } from "@inertiajs/inertia-vue3";
 import { Inertia } from "@inertiajs/inertia";
 </script>
 <template>
-    <Head title="Edit Customers" />
+    <Head title="Edit Orders" />
     <BreezeAuthenticatedLayout>
         <template #header class="flex">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Edit Customers
+                Edit Orders
             </h2>
         </template>
         <div class="py-12">
@@ -27,7 +27,7 @@ import { Inertia } from "@inertiajs/inertia";
                 </div>
                 <div class="bg-white shadow-sm sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
-                        <FormCustomer v-bind:editing="true" :data="$page.props.customers"/>
+                        <FormOrders v-bind:editing="true" :data="$page.props.orders" :product="$page.props.details"/>
                     </div>
                 </div>
             </div>

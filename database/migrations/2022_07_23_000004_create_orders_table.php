@@ -17,7 +17,6 @@ class CreateOrdersTable extends Migration
             $table->uuid('id')->primary();
             $table->uuid('customer_id');
             $table->uuid('user_id');
-            $table->decimal('total', 12, 0);
             $table->enum('status', ['Cancel', 'Pending', 'Complete']);
 
             $table->timestamps();

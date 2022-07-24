@@ -16,16 +16,16 @@ defineComponent({
 });
 
 defineProps({
-    users: {
+    orders: {
         type: Object,
         default: () => ({}),
     },
 });
 
-const form = useForm({})
+const form = useForm({});
 
 const data = {
-    model: "users",
+    model: "orders",
     terms: new URL(location.href).searchParams.get("terms")
         ? new URL(location.href).searchParams.get("terms")
         : "",
@@ -33,23 +33,24 @@ const data = {
 
 const destroy = (id) => {
     if (confirm("Are you sure you want to Delete")) {
-        form.delete(route("users.destroy", id));
+        form.delete(route("orders.destroy", id));
     }
-}
+};
 </script>
 
 <template>
-    <Head title="Users" />
+    <Head title="Orders" />
 
     <BreezeAuthenticatedLayout>
         <template #header class="flex">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Users
+                Orders
             </h2>
             <Link
-                :href="route('users.create')" v-if="$page.props.auth.access.indexOf('create users') != -1"
+                :href="route('orders.create')"
+                v-if="$page.props.auth.access.indexOf('create orders') != -1"
                 class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150"
-                >Add User
+                >Add Orders
             </Link>
         </template>
 
@@ -79,10 +80,13 @@ const destroy = (id) => {
                                 >
                                     <tr>
                                         <th scope="col" class="px-6 py-3">
-                                            Name
+                                            ID
                                         </th>
                                         <th scope="col" class="px-6 py-3">
-                                            Email
+                                            Customer
+                                        </th>
+                                        <th scope="col" class="px-6 py-3">
+                                            Status
                                         </th>
                                         <th
                                             scope="col"
@@ -94,37 +98,63 @@ const destroy = (id) => {
                                 </thead>
                                 <tbody>
                                     <tr
-                                        v-for="user in users.data"
-                                        :key="user.id"
+                                        v-for="order in orders.data"
+                                        :key="order.id"
                                         class="bg-white border-b"
                                     >
+                                        <th
+                                            scope="row"
+                                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                                        >
+                                            {{ order.id }}
+                                        </th>
                                         <td class="px-6 py-4">
-                                            {{ user.name }}
+                                            {{ order.customer.name }}
                                         </td>
                                         <td class="px-6 py-4">
-                                            {{ user.email }}
+                                            {{ order.status }}
                                         </td>
-
                                         <td
                                             class="px-6 py-4 flex space-x-4 justify-center"
                                         >
-                                            <Link v-if="$page.props.auth.access.indexOf('view users') != -1"
+                                            <Link
+                                                v-if="
+                                                    $page.props.auth.access.indexOf(
+                                                        'view orders'
+                                                    ) != -1
+                                                "
                                                 :href="
-                                                    route('users.show', user.id)
+                                                    route(
+                                                        'orders.show',
+                                                        order.id
+                                                    )
                                                 "
                                                 class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150"
                                                 >View</Link
                                             >
-                                            <Link v-if="$page.props.auth.access.indexOf('update users') != -1"
+                                            <Link
+                                                v-if="
+                                                    $page.props.auth.access.indexOf(
+                                                        'update orders'
+                                                    ) != -1
+                                                "
                                                 :href="
-                                                    route('users.edit', user.id)
+                                                    route(
+                                                        'orders.edit',
+                                                        order.id
+                                                    )
                                                 "
                                                 class="px-4 py-2 text-white bg-gray-800 hover:bg-gray-700 rounded-lg uppercase"
                                                 >Edit</Link
                                             >
-                                            <BreezeButton v-if="$page.props.auth.access.indexOf('delete users') != -1"
+                                            <BreezeButton
+                                                v-if="
+                                                    $page.props.auth.access.indexOf(
+                                                        'delete orders'
+                                                    ) != -1
+                                                "
                                                 class="bg-red-700 hover:bg-red-800"
-                                                @click="destroy(user.id)"
+                                                @click="destroy(order.id)"
                                             >
                                                 Delete
                                             </BreezeButton>
@@ -135,7 +165,7 @@ const destroy = (id) => {
                         </div>
                         <pagination
                             class="mt-6 flex justify-end"
-                            :links="users.links"
+                            :links="orders.links"
                         />
                     </div>
                 </div>

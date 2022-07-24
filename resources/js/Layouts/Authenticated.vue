@@ -60,15 +60,60 @@ const showingNavigationDropdown = ref(false);
                                         </BreezeDropdown>
                                     </div>
                                 </div>
-                                <BreezeNavLink :href="route('customers.index')" :active="route().current('customers.*')" v-if="$page.props.auth.access.indexOf('list customers') != -1">
-                                    Customers
-                                </BreezeNavLink>
-                                <BreezeNavLink :href="route('categories.index')" :active="route().current('categories.*')" v-if="$page.props.auth.access.indexOf('list categories') != -1">
-                                    Categories
-                                </BreezeNavLink>
-                                <BreezeNavLink :href="route('products.index')" :active="route().current('products.*')" v-if="$page.props.auth.access.indexOf('list products') != -1">
-                                    Products
-                                </BreezeNavLink>
+                                <div class="hidden sm:flex sm:items-center sm:ml-6" v-if="$page.props.auth.access.indexOf('list categories') != -1 || $page.props.auth.access.indexOf('list products') != -1">
+                                    <!-- Settings Dropdown -->
+                                    <div class="ml-3 relative">
+                                        <BreezeDropdown align="right" width="48">
+                                            <template #trigger>
+                                                <span class="inline-flex rounded-md">
+                                                    <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                                        Product Management
+
+                                                        <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </span>
+                                            </template>
+
+                                            <template #content>
+                                                <BreezeDropdownLink :href="route('categories.index')" :active="route().current('categories.*')" v-if="$page.props.auth.access.indexOf('list categories') != -1">
+                                                    Categories
+                                                </BreezeDropdownLink>
+                                                <BreezeDropdownLink :href="route('products.index')" :active="route().current('products.*')" v-if="$page.props.auth.access.indexOf('list products') != -1">
+                                                    Products
+                                                </BreezeDropdownLink>
+                                            </template>
+                                        </BreezeDropdown>
+                                    </div>
+                                </div>
+                                <div class="hidden sm:flex sm:items-center sm:ml-6" v-if="$page.props.auth.access.indexOf('list customers') != -1 || $page.props.auth.access.indexOf('list orders') != -1">
+                                    <!-- Settings Dropdown -->
+                                    <div class="ml-3 relative">
+                                        <BreezeDropdown align="right" width="48">
+                                            <template #trigger>
+                                                <span class="inline-flex rounded-md">
+                                                    <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                                        Order Management
+
+                                                        <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                        </svg>
+                                                    </button>
+                                                </span>
+                                            </template>
+
+                                            <template #content>
+                                                <BreezeDropdownLink :href="route('customers.index')" :active="route().current('customers.*')" v-if="$page.props.auth.access.indexOf('list customers') != -1">
+                                                    Customers
+                                                </BreezeDropdownLink>
+                                                <BreezeDropdownLink :href="route('orders.index')" :active="route().current('orders.*')" v-if="$page.props.auth.access.indexOf('list orders') != -1">
+                                                    Orders
+                                                </BreezeDropdownLink>
+                                            </template>
+                                        </BreezeDropdown>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -114,22 +159,45 @@ const showingNavigationDropdown = ref(false);
                         <BreezeResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
                         </BreezeResponsiveNavLink>
-                        <BreezeResponsiveNavLink :href="route('users.index')" :active="route().current('users.*')" v-if="$page.props.auth.access.indexOf('list users') != -1">
-                            Users
-                        </BreezeResponsiveNavLink>
-                        <BreezeResponsiveNavLink :href="route('customers.index')" :active="route().current('customers.*')" v-if="$page.props.auth.access.indexOf('list customers') != -1">
-                            Customers
-                        </BreezeResponsiveNavLink>
-                        <BreezeResponsiveNavLink :href="route('categories.index')" :active="route().current('categories.*')" v-if="$page.props.auth.access.indexOf('list categories') != -1">
-                            Categories
-                        </BreezeResponsiveNavLink>
-                        <BreezeResponsiveNavLink :href="route('products.index')" :active="route().current('products.*')" v-if="$page.props.auth.access.indexOf('list products') != -1">
-                            Products
-                        </BreezeResponsiveNavLink>
+                        <!-- Responsive Settings Options -->
+                        <div class="pb-1 border-b border-gray-200" v-if="$page.props.auth.access.indexOf('list users') != -1 || $page.props.auth.access.indexOf('list roles') != -1 || $page.props.auth.access.indexOf('list permissions') != -1">
+                            <div class="space-y-1">
+                                <BreezeResponsiveNavLink :href="route('users.index')" :active="route().current('users.*')" v-if="$page.props.auth.access.indexOf('list users') != -1">
+                                    Users
+                                </BreezeResponsiveNavLink>
+                                <BreezeResponsiveNavLink :href="route('roles.index')" :active="route().current('roles.*')" v-if="$page.props.auth.access.indexOf('list roles') != -1">
+                                    Roles
+                                </BreezeResponsiveNavLink>
+                                <BreezeResponsiveNavLink :href="route('permissions.index')" :active="route().current('permissions.*')" v-if="$page.props.auth.access.indexOf('list permissions') != -1">
+                                    Permissions
+                                </BreezeResponsiveNavLink>
+                            </div>
+                        </div>
+                        <div class="pb-1 border-b border-gray-200" v-if="$page.props.auth.access.indexOf('list categories') != -1 || $page.props.auth.access.indexOf('list products') != -1">
+                            <div class="space-y-1">
+                                <BreezeResponsiveNavLink :href="route('categories.index')" :active="route().current('categories.*')" v-if="$page.props.auth.access.indexOf('list categories') != -1">
+                                    Categories
+                                </BreezeResponsiveNavLink>
+                                <BreezeResponsiveNavLink :href="route('products.index')" :active="route().current('products.*')" v-if="$page.props.auth.access.indexOf('list products') != -1">
+                                    Products
+                                </BreezeResponsiveNavLink>
+                            </div>
+                        </div>
+
+                        <div class="pb-1 border-b border-gray-200" v-if="$page.props.auth.access.indexOf('list customers') != -1 || $page.props.auth.access.indexOf('list orders') != -1">
+                            <div class="space-y-1">
+                                <BreezeResponsiveNavLink :href="route('customers.index')" :active="route().current('customers.*')" v-if="$page.props.auth.access.indexOf('list customers') != -1">
+                                    Customers
+                                </BreezeResponsiveNavLink>
+                                <BreezeResponsiveNavLink :href="route('orders.index')" :active="route().current('orders.*')" v-if="$page.props.auth.access.indexOf('list orders') != -1">
+                                    Orders
+                                </BreezeResponsiveNavLink>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Responsive Settings Options -->
-                    <div class="pt-4 pb-1 border-t border-gray-200">
+                    <div class="pt-4 pb-1">
                         <div class="px-4">
                             <div class="font-medium text-base text-gray-800">{{ $page.props.auth.user.name }}</div>
                             <div class="font-medium text-sm text-gray-500">{{ $page.props.auth.user.email }}</div>

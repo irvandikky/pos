@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Category;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class ProductStoreRequest extends FormRequest
 {
@@ -33,7 +31,8 @@ class ProductStoreRequest extends FormRequest
             'stock' => ['required', 'numeric'],
             'status' => ['required', 'boolean'],
             'categories' => ['required', 'array'],
-            'categories.*.value' => ['required', Rule::in(Category::select('id')->pluck('id')->toArray()) ]
+            'categories.*' => ['required', 'array'],
+            'categories.*.value' => ['required', 'exists:categories,id' ]
         ];
     }
 }

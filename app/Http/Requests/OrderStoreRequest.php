@@ -25,9 +25,11 @@ class OrderStoreRequest extends FormRequest
     {
         return [
             'customer_id' => ['required', 'exists:customers,id'],
-            'user_id' => ['required', 'exists:users,id'],
-            'total' => ['required', 'numeric'],
-            'status' => ['required', 'in:cancel,pending,complete'],
+            'status' => ['required', 'in:Cancel,Pending,Complete'],
+            'products' => ['required', 'array'],
+            'products.*' => ['required', 'array'],
+            'products.*.id' => ['required', 'exists:products,id'],
+            'products.*.qty' => ['required', 'numeric', 'min:0'],
         ];
     }
 }

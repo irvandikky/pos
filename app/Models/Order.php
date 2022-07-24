@@ -13,7 +13,7 @@ class Order extends Model
     use HasFactory;
     use Searchable;
 
-    protected $fillable = ['customer_id', 'user_id', 'total', 'status'];
+    protected $fillable = ['customer_id', 'user_id', 'status'];
 
     protected $searchableFields = ['*'];
 
@@ -30,10 +30,5 @@ class Order extends Model
     public function orderDetails()
     {
         return $this->hasMany(OrderDetail::class);
-    }
-
-    public function products()
-    {
-        return $this->hasManyThrough(Product::class, OrderDetail::class);
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Api\OrderController as API;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
@@ -49,6 +50,9 @@ Route::middleware('auth')->group(function () {
     // Sales
     Route::resource('customers', CustomerController::class);
     Route::resource('orders', OrderController::class);
+
+    Route::get('/getCustomers', [API::class, 'getCustomer'])->name('getCustomer');
+    Route::get('/getProducts', [API::class, 'getProduct'])->name('getProduct');
 });
 
 require __DIR__ . '/auth.php';

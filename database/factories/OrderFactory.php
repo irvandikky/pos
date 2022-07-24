@@ -23,7 +23,6 @@ class OrderFactory extends Factory
     public function definition()
     {
         return [
-            'total' => $this->faker->randomFloat(2, 0, 9999),
             'status' => 'Cancel',
             'customer_id' => \App\Models\Customer::factory(),
             'user_id' => \App\Models\User::factory(),
