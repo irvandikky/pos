@@ -123,7 +123,7 @@ const create = () => {
                     :noOptionsText="'Type min. 1 word'"
                     :resolve-on-load="true"
                     :delay="0"
-                    :disabled="props.product[index] ? props.product[index] : false"
+                    :disabled="props.product[index] ? props.product[index].disabled : false"
                     :required="true"
                     :searchable="true"
                     @change="getInput($event, index)"
